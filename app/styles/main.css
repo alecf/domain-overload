@@ -1,3 +1,59 @@
 body {
-  padding: 20px;
+  padding: 0px;
+  margin: 0px;
+}
+
+#domain-list {
+    padding: 0px;
+}
+
+li.domain, li.tab {
+    list-style-type: none;
+    padding: 2px 0px;
+}
+
+li.tab {
+    width: 250px;
+}
+
+a.title {
+    width: 200px;
+    white-space: nowrap;
+    overflow:hidden;
+    display: inline-block
+}
+
+li button {
+    display: inline-block;
+    margin-left: 5px;
+    border-radius: 10px;
+    float: right;
+}
+
+li.domain > button {
+}
+
+li.tab {
+    background-color: #7f7f7f;
+    border-radius: 2px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+
+li.domain {
+    background-color: #1f77b4;
+    border-radius: 2px;
+    padding-left: 3px;
+    margin-bottom: 2px;
+}
+
+span, a {
+    text-decoration: none;
+    color: #eee;
+    padding-left: 3px;
+}
+
+ul.domain {
+    margin-top: 3px;
 }

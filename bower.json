@@ -2,7 +2,9 @@
   "name": "domain-overload",
   "version": "0.0.0",
   "dependencies": {
-    "lodash": "~2.4.1"
+    "underscore": "~1.7.0",
+    "jQuery": "~2.1.1",
+    "underscore.string": "~2.4.0"
   },
   "devDependencies": {}
 }
