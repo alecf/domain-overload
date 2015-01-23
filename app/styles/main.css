@@ -13,11 +13,11 @@ li.domain, li.tab {
 }
 
 li.tab {
-    width: 250px;
+    width: 300px;
 }
 
 a.title {
-    width: 200px;
+    width: 250px;
     white-space: nowrap;
     overflow:hidden;
     display: inline-block

@@ -18,12 +18,23 @@ function makeCloseButton(owner, tabIds) {
   return $('<button>x</button>').click(makeCloseHandler(tabIds, owner));
 }
 
+function lastActiveByHistory(tabHistory, tabId) {
+  if (!(tabId in tabHistory)) {
+    return 0;
+  }
+  if (!('lastActivated' in tabHistory[tabId])) {
+    return 0;
+  }
+  return -tabHistory[tabId].lastActivated;
+};
 
 function populateList() {
   var $list = $('#domain-list');
 
   chrome.tabs.query({currentWindow: true}, function(tabs) {
-    console.log('Got all tabs: ', tabs);
+    // console.log('Got all tabs: ', tabs);
+    var tabHistory = chrome.extension.getBackgroundPage().tabHistory;
+    var lastActive = _.partial(lastActiveByHistory, tabHistory);
     var byDomain = _(tabs).chain()
         .groupBy(function(tab) {
           var url = tab.url;
@@ -38,23 +49,34 @@ function populateList() {
 
           var parser = document.createElement('a');
           parser.href = url;
-
           return parser.hostname;
         })
             .pairs()
             .forEach(function(countTab) {
+              // sort tabs within a domain
               var tabs = countTab[1];
+              console.log("Got domain: ", countTab[0], ": ", _.pluck(tabs, 'id'));
               var newtabs = _(tabs).chain()
+              // in reverse order that you want
                   .sortBy(function(tab) { return tab.id; })
                   .sortBy(function(tab) { return tab.active; })
                   .sortBy(function(tab) { return tab.url; })
+                  .sortBy(function(tab) { return lastActive(tab.id); })
                   .value();
               tabs.length = 0;
+              // replace the identical object
               Array.prototype.push.apply(tabs, newtabs);
             })
-            .sortBy(function(countTab) { return -countTab[1].length; })
-                .value();
-    console.log('Now have ', byDomain);
+    // sort domains
+        .sortBy(function(countTab) { return -countTab[1].length; })
+        .sortBy(function(countTab) {
+          var tabs = countTab[1];
+          return _(tabs).chain()
+              .pluck('id')
+              .map(lastActive)
+              .max()
+              .value();
+        });
 
     _(byDomain).forEach(function(domainTabs) {
       //console.log("Got domain: ", domainTabs);
@@ -72,7 +94,7 @@ function populateList() {
             .last()
             .first()
             .value();
-        console.log(domain, ' => ', domainFavicon);
+        // console.log(domain, ' => ', domainFavicon);
         if (domainFavicon) {
           $domainItem.append($('<img width="16" height="16">')
               .attr('src', domainFavicon));
@@ -87,7 +109,7 @@ function populateList() {
       }
 
       _.forEach(domainTabList, function(tab) {
-        console.log("   tab: ", tab);
+        // console.log("   tab: ", tab);
         var $tabItem = $('<li class="tab">');
         if (tab.favIconUrl) {
           $tabItem.append($('<img height="16" width="16">').attr('src', tab.favIconUrl));
@@ -99,7 +121,7 @@ function populateList() {
         $tabItem.append($tabText);
 
         $tabItem.append(makeCloseButton($tabItem.get(0), tab.id));
-        console.log("Appending ", $tabItem.get(0), " to ", $parent.get(0));
+        // console.log("Appending ", $tabItem.get(0), " to ", $parent.get(0));
         $parent.append($tabItem);
       });
 
